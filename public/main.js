@@ -1,3 +1,26 @@
+// Animazioni allo scroll: aggiunge .in agli elementi quando entrano in vista.
+(() => {
+  const targets = document.querySelectorAll(".art .cluster, .fact, .service, .contact-intro, .card");
+  document.querySelectorAll(".art .cluster, .fact").forEach((el, i) => el.style.setProperty("--i", el.matches(".fact") ? i - 5 : i));
+  if (!("IntersectionObserver" in window)) {
+    targets.forEach((el) => el.classList.add("in"));
+    return;
+  }
+  const io = new IntersectionObserver(
+    (entries) => {
+      // Se più elementi entrano insieme, compaiono uno alla volta.
+      entries.filter((e) => e.isIntersecting).forEach((e, k) => {
+        const step = e.target.matches(".cluster") ? 450 : 150;
+        e.target.style.setProperty("--d", k * step + "ms");
+        e.target.classList.add("in");
+        io.unobserve(e.target);
+      });
+    },
+    { threshold: 0.2, rootMargin: "0px 0px -8% 0px" }
+  );
+  targets.forEach((el) => io.observe(el));
+})();
+
 const form = document.getElementById("contact-form");
 const done = document.getElementById("contact-done");
 const errorBox = document.getElementById("form-error");
