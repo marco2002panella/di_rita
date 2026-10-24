@@ -1,3 +1,9 @@
 name = "di-rita"
+main = "src/worker.js"
 compatibility_date = "2025-01-01"
-pages_build_output_dir = "./public"
+
+# Il sito statico è servito da public/; il Worker gira solo per /api/*
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]

@@ -1,7 +1,7 @@
-// Cloudflare Pages Function: POST /api/contact
+// Cloudflare Worker: POST /api/contact (il resto del sito è servito come asset statico da public/)
 // Inoltra il messaggio del form a TO_EMAIL tramite Resend (https://resend.com).
 //
-// Variabili d'ambiente (Pages > Settings > Variables and Secrets):
+// Variabili d'ambiente (Workers > Settings > Variables and Secrets):
 //   RESEND_API_KEY  (secret, obbligatoria)
 //   TO_EMAIL        (opzionale, default pierluigidirita@outlook.it)
 //   FROM_EMAIL      (opzionale, default "Sito Pierluigi <onboarding@resend.dev>")
@@ -27,7 +27,7 @@ const escapeHtml = (s) =>
 
 const clean = (value, max) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 
-export async function onRequestPost({ request, env }) {
+async function handleContact(request, env) {
   let payload;
   try {
     payload = await request.json();
@@ -88,4 +88,13 @@ export async function onRequestPost({ request, env }) {
   return json({ ok: true });
 }
 
-export const onRequest = () => json({ error: "Metodo non consentito." }, 405);
+export default {
+  async fetch(request, env) {
+    const { pathname } = new URL(request.url);
+    if (pathname === "/api/contact") {
+      if (request.method !== "POST") return json({ error: "Metodo non consentito." }, 405);
+      return handleContact(request, env);
+    }
+    return env.ASSETS.fetch(request);
+  },
+};

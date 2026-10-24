@@ -1,22 +1,22 @@
 # Pierluigi di Rita · Personal Trainer
 
 Sito vetrina (HTML/CSS/JS statico) per Pierluigi di Rita, personal trainer a Ceccano, Palestra Zen Zero.
-Il form di contatto invia un'email a `pierluigidirita@outlook.it` tramite una Cloudflare Pages Function e [Resend](https://resend.com).
+Il form di contatto invia un'email a `pierluigidirita@outlook.it` tramite un Cloudflare Worker e [Resend](https://resend.com).
 
 ```
 public/               sito statico (index.html, styles.css, main.js)
-functions/api/        Pages Function: POST /api/contact
-wrangler.toml         configurazione Cloudflare Pages
+src/worker.js         Worker: POST /api/contact (il resto è servito da public/)
+wrangler.toml         configurazione Cloudflare Workers + asset statici
 ```
 
-## Deploy su Cloudflare Pages
+## Deploy su Cloudflare (Workers con asset statici)
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** e scegli questo repository.
+1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Import a repository** e scegli questo repository.
 2. Impostazioni di build:
-   - Framework preset: `None`
    - Build command: *(vuoto)*
-   - Build output directory: `public`
-3. **Settings → Variables and Secrets** (Production), aggiungi:
+   - Deploy command: `npx wrangler deploy` (il default)
+   - Il nome del Worker deve essere `di-rita`, come in `wrangler.toml`.
+3. **Settings → Variables and Secrets**, aggiungi:
    - `RESEND_API_KEY` come **Secret** (obbligatoria)
    - `TO_EMAIL` (opzionale, default `pierluigidirita@outlook.it`)
    - `FROM_EMAIL` (opzionale, vedi sotto)
@@ -35,11 +35,11 @@ Le richieste contengono nome, recapito, obiettivo e messaggio. Se il recapito è
 Con Node.js installato:
 
 ```bash
-npx wrangler pages dev public
+npx wrangler dev
 ```
 
 Per provare l'invio reale crea un file `.dev.vars` (vedi `.dev.vars.example`).
-Senza Node basta servire la cartella `public/` con un qualsiasi server statico: il form mostrerà l'errore perché `/api/contact` non esiste.
+Senza Node basta servire la cartella `public/` con un qualsiasi server statico: il form mostrerà un errore perché `/api/contact` non esiste.
 
 ## Da completare
 
